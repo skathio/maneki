@@ -1,6 +1,12 @@
 {
   "name": "Stonks",
-  "tagline": "A daily US-equity momentum scan and a TradingView chart check. Research tools, not financial advice.",
-  "colour": "#4a1d78",
+  "kind": "Research tool",
+  "tagline": "A daily US-equity momentum scan and a TradingView chart check. Research, not financial advice.",
+  "tags": [
+    "Agent",
+    "React",
+    "TradingView"
+  ],
+  "colour": "#5fd3f3",
   "image": "site/favicon.svg"
 }
