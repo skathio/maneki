@@ -182,7 +182,7 @@ function PickCard({ c, axis }: { c: Candidate; axis: [number, number] }) {
           </div>
           <p className="mt-1 text-xs text-muted">{setupLabel(c.setup)} in {c.sector}</p>
         </div>
-        <span className="whitespace-nowrap pt-1 text-sm tracking-[2px] text-accent" role="img" aria-label={`Conviction ${c.conviction} of 5`}>
+        <span className="whitespace-nowrap pt-1 text-sm tracking-[2px] text-ink" role="img" aria-label={`Conviction ${c.conviction} of 5`}>
           {convictionDots(c.conviction)}
         </span>
       </header>

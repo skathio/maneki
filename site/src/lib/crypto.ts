@@ -15,6 +15,7 @@
 // =============================================================================
 export const FORMAT_VERSION = 1;
 export const KEY_BYTES = 32;
+// Kept from before the rename to Maneki: changing it would lock every device out of already-published data.
 export const CHECK_PLAINTEXT = "stonks-dashboard-ok";
 export const CHECK_AAD = "keyinfo";
 import type { Envelope, KeyInfo } from "./types.ts";

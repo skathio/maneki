@@ -1,5 +1,5 @@
 # =============================================================================
-# Price-history store (lives in the private stonks-data repo).
+# Price-history store (lives in the private maneki-data repo).
 #
 # Layout:
 #   history/bars/YYYY/YYYY-MM-DD.csv.gz   raw (UNADJUSTED) daily bars, one file

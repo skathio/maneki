@@ -260,11 +260,6 @@ class EarningsInHold(unittest.TestCase):
         self.assertEqual(daily.reports_in_hold({"sessions_away": 10}, 42), 1)
         self.assertEqual(daily.reports_in_hold({"sessions_away": 10}, 126), 2)
 
-
-if __name__ == "__main__":
-    unittest.main()
-
-
 class MomentumHealth(unittest.TestCase):
     @staticmethod
     def _bars(closes):
@@ -400,3 +395,47 @@ class ControlArm(unittest.TestCase):
             ids = {r["id"] for r in rows}
             self.assertNotIn("2026-10-29:BBB", ids)        # BBB is still open: no second row
             self.assertIn("2026-10-29:AAA", ids)
+
+
+class DataDirTest(unittest.TestCase):
+    """The data repo is found under its new name, or its pre-rename one, or an explicit path."""
+
+    def _layout(self, *names):
+        root = tempfile.mkdtemp()
+        code = os.path.join(root, "maneki")
+        os.makedirs(code)
+        for n in names:
+            os.makedirs(os.path.join(root, n))
+        return root, code
+
+    def _data_dir(self, code, env=None):
+        from pipeline import common
+        with mock.patch.object(common, "REPO_ROOT", code), mock.patch.dict(os.environ, env or {}, clear=False):
+            for k in ("MANEKI_DATA_DIR", "STONKS_DATA_DIR"):
+                if not env or k not in env:
+                    os.environ.pop(k, None)
+            return common.data_dir()
+
+    def test_new_name_first(self):
+        root, code = self._layout("maneki-data", "stonks-data")
+        self.assertEqual(self._data_dir(code), os.path.join(root, "maneki-data"))
+
+    def test_old_name_still_works(self):
+        root, code = self._layout("stonks-data")
+        self.assertEqual(self._data_dir(code), os.path.join(root, "stonks-data"))
+
+    def test_explicit_path_wins_and_old_variable_is_honoured(self):
+        root, code = self._layout("maneki-data")
+        other = tempfile.mkdtemp()
+        self.assertEqual(self._data_dir(code, {"MANEKI_DATA_DIR": other}), other)
+        self.assertEqual(self._data_dir(code, {"STONKS_DATA_DIR": other}), other)
+
+    def test_missing_is_a_clear_error(self):
+        _, code = self._layout()
+        with self.assertRaises(SystemExit) as e:
+            self._data_dir(code)
+        self.assertIn("maneki-data", str(e.exception))
+
+
+if __name__ == "__main__":
+    unittest.main()

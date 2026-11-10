@@ -48,7 +48,7 @@ export function ExtLink({ href, className = "", children }: LinkProps) {
 
 export function Button({ href, primary = false, className = "", children }: LinkProps & { primary?: boolean }) {
   const cls = `inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold no-underline transition-colors ${
-    primary ? "bg-accent text-on-accent hover:opacity-90" : "border border-line bg-surface text-ink hover:bg-surface-2"} ${className}`;
+    primary ? "bg-gilded text-on-accent hover:opacity-90" : "border border-line bg-surface text-ink hover:bg-surface-2"} ${className}`;
   return <ExtLink href={href} className={cls}>{children}</ExtLink>;
 }
 

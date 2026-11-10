@@ -8,6 +8,7 @@
 import { decryptJson, extractKeyText, importKeyText, verifyKey } from "./crypto.ts";
 import type { Envelope, KeyInfo } from "./types.ts";
 
+// Kept from before the rename to Maneki: devices that already hold the key stay unlocked (storage is per origin, not per path).
 const KEY_STORE = "stonks.dashboardKey";
 
 function storage(): Storage | null {

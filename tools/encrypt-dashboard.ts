@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // =============================================================================
-// Encrypt the plaintext dashboard payload (private stonks-data/dashboard/)
+// Encrypt the plaintext dashboard payload (private maneki-data/dashboard/)
 // into the public site (site/data/). Called by `pipeline publish`.
 //
 //   STONKS_DASHBOARD_KEY=<43-char base64url> node tools/encrypt-dashboard.ts --src <dir> --dst site/data
