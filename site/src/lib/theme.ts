@@ -1,4 +1,5 @@
 // Theme preference: "auto" follows the OS; "light"/"dark" pin it. Stored per device.
+// Kept from before the rename to Maneki, so each device keeps its chosen theme.
 const THEME_STORE = "stonks.theme";
 export const THEMES = ["auto", "light", "dark"] as const;
 export type Theme = (typeof THEMES)[number];

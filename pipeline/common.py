@@ -45,17 +45,29 @@ def load_env_file(path):
                 os.environ[name.strip()] = value
 
 
-load_env_file(os.environ.get("STONKS_ENV_FILE") or os.path.join(REPO_ROOT, ".env"))
+load_env_file(os.environ.get("MANEKI_ENV_FILE") or os.environ.get("STONKS_ENV_FILE") or os.path.join(REPO_ROOT, ".env"))
 
 IN_CLOUD = bool(os.environ.get("CLAUDE_CODE_REMOTE"))
 
 
+# The project was renamed from stonks to maneki. An environment that still clones the private repo
+# under its old name keeps working: the sibling folder is looked up as maneki-data, then stonks-data.
+DATA_DIR_NAMES = ("maneki-data", "stonks-data")
+
+
 def data_dir():
     """Private state repo (price history, prompt, run artifacts)."""
-    path = os.environ.get("STONKS_DATA_DIR") or os.path.join(os.path.dirname(REPO_ROOT), "stonks-data")
-    if not os.path.isdir(path):
-        raise SystemExit(f"stonks-data repo not found at {path} (set STONKS_DATA_DIR)")
-    return path
+    explicit = os.environ.get("MANEKI_DATA_DIR") or os.environ.get("STONKS_DATA_DIR")
+    if explicit:
+        if not os.path.isdir(explicit):
+            raise SystemExit(f"data repo not found at {explicit} (MANEKI_DATA_DIR)")
+        return explicit
+    parent = os.path.dirname(REPO_ROOT)
+    for name in DATA_DIR_NAMES:
+        path = os.path.join(parent, name)
+        if os.path.isdir(path):
+            return path
+    raise SystemExit(f"maneki-data repo not found next to {REPO_ROOT} (tried {', '.join(DATA_DIR_NAMES)}; set MANEKI_DATA_DIR)")
 
 
 def log(event, **fields):

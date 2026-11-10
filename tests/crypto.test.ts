@@ -31,6 +31,8 @@ test("generated keys are 32-byte base64url and validate", () => {
 
 test("extractKeyText accepts a bare key, an unlock link, or a fragment", () => {
   assert.equal(extractKeyText(KEY), KEY);
+  assert.equal(extractKeyText(`https://skathio.github.io/maneki/#k=${KEY}`), KEY);
+  // Unlock links saved before the rename still carry the key.
   assert.equal(extractKeyText(`https://skathio.github.io/stonks/#k=${KEY}`), KEY);
   assert.equal(extractKeyText(`#k=${KEY}`), KEY);
   assert.equal(extractKeyText(`  ${KEY}\n`), KEY);
@@ -80,7 +82,7 @@ test("keyinfo check verifies only the current key", async () => {
 });
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), "stonks-enc-"));
+  const root = await mkdtemp(join(tmpdir(), "maneki-enc-"));
   const src = join(root, "dashboard");
   await mkdir(join(src, "days"), { recursive: true });
   await writeFile(join(src, "index.json"), JSON.stringify({ latest: "2026-10-29", days: ["2026-10-29"] }));

@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   root: "site",
-  base: "./", // GitHub Pages serves under /stonks/
+  base: "./", // GitHub Pages serves under /maneki/
   publicDir: false,
   plugins: [react(), tailwindcss()],
   build: { outDir: "../dist", emptyOutDir: true, sourcemap: false },

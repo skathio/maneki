@@ -95,7 +95,7 @@ function PickTable({ picks }: { picks: Pick[] }) {
                 <ExtLink href={tradingViewUrl(p.ticker)} className="font-extrabold text-ink no-underline hover:text-accent hover:underline">{p.ticker}</ExtLink>
               </td>
               <td className={`${TD} whitespace-nowrap`}>{setupLabel(p.setup)}</td>
-              <td className={`${TD} whitespace-nowrap tracking-[2px] text-accent`} aria-label={`Conviction ${p.conviction} of 5`}>{convictionDots(p.conviction)}</td>
+              <td className={`${TD} whitespace-nowrap tracking-[2px] text-ink`} aria-label={`Conviction ${p.conviction} of 5`}>{convictionDots(p.conviction)}</td>
               <td className={`${TD} whitespace-nowrap ${STATUS_TONE[p.status] ?? "text-muted"}`} title={statusLabel(p.status)}>
                 {statusLabel(p.status).replace(/ \(.*\)$/, "")}
               </td>

@@ -12,7 +12,8 @@
 // =============================================================================
 import { generateKeyText } from "../site/src/lib/crypto.ts";
 
-const site = (process.argv[2] || "https://skathio.github.io/stonks/").replace(/#.*$/, "");
+const site = (process.argv[2] || "https://skathio.github.io/maneki/").replace(/#.*$/, "");
+// STONKS_DASHBOARD_KEY keeps its pre-rename name: the cloud environment already holds it under it.
 const key = generateKeyText();
 console.log(`STONKS_DASHBOARD_KEY=${key}`);
 console.log(`Unlock link: ${site}#k=${key}`);

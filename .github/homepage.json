@@ -1,5 +1,5 @@
 {
-  "name": "Stonks",
+  "name": "Maneki",
   "kind": "Research tool",
   "tagline": "A daily US-equity momentum scan and a TradingView chart check. Research, not financial advice.",
   "tags": [
@@ -7,6 +7,6 @@
     "React",
     "TradingView"
   ],
-  "colour": "#5fd3f3",
+  "colour": "#f1c25f",
   "image": "site/favicon.svg"
 }

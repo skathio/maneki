@@ -86,7 +86,7 @@ def main(argv=None):
     p.add_argument("--as-of")
     p.add_argument("--no-encrypt", action="store_true")
     p.set_defaults(func=cmd_publish)
-    p = sub.add_parser("ship", help="commit and push stonks-data and the encrypted site to main")
+    p = sub.add_parser("ship", help="commit and push maneki-data and the encrypted site to main")
     p.set_defaults(func=cmd_ship)
     args = ap.parse_args(argv)
     return args.func(args) or 0

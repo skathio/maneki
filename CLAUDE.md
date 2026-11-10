@@ -126,7 +126,7 @@ README.md                         Public-facing repo overview.
 .gitignore                        Keeps notes/, data/, scripts/, results/ private.
 ```
 
-**Private state repo `skathio/stonks-data`** (cloned next to this repo): raw price history, the agent's
+**Private state repo `skathio/maneki-data`** (formerly `stonks-data`; cloned next to this repo as `maneki-data`, or `stonks-data` in an environment that still uses the old name): raw price history, the agent's
 analysis prompt (`agent/PROMPT.md`, position trades — edge IP), plaintext runs, the pick ledger and its control arm (`control.json`: every in-context mechanical signal at fixed levels). Massive's and Finnhub's
 terms forbid redistributing their data or results derived from it: never commit market data or plaintext
 analysis to this public repo. Only `tools/encrypt-dashboard.ts` output may land in `site/data/`, and

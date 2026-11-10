@@ -1,4 +1,6 @@
-# Momentum Edge
+# Maneki
+
+*Formerly Stonks.* A maneki-neko beckons money in; this one scans for it.
 
 A **daily US-equity swing-trading** toolkit for momentum continuation: breakouts from volatility
 contractions and pullbacks to rising averages, aimed at multi-week moves. It has two parts:
