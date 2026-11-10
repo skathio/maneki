@@ -27,12 +27,12 @@
 /* Dark palette: follows the OS unless the user picked a theme (data-theme on <html>). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-bg: #0e1014;
-    --color-surface: #171a21;
+    --color-bg: #101216;
+    --color-surface: #171a20;
     --color-surface-2: #1f232c;
     --color-ink: #e7e9ee;
     --color-muted: #9aa2b1;
-    --color-line: #2a2f3a;
+    --color-line: #2b3039;
     --color-accent: #7ea4ff;
     --color-on-accent: #0e1014;
     --color-good: #5fd08f;
@@ -48,12 +48,12 @@
 }
 
 :root[data-theme="dark"] {
-  --color-bg: #0e1014;
-  --color-surface: #171a21;
+  --color-bg: #101216;
+  --color-surface: #171a20;
   --color-surface-2: #1f232c;
   --color-ink: #e7e9ee;
   --color-muted: #9aa2b1;
-  --color-line: #2a2f3a;
+  --color-line: #2b3039;
   --color-accent: #7ea4ff;
   --color-on-accent: #0e1014;
   --color-good: #5fd08f;

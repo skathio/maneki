@@ -7,6 +7,7 @@ import { acceptKey, fetchKeyInfo, forgetKey, hashHasKey, makeLoader, restoreKey,
 import Record from "./components/Record.tsx";
 import Today from "./components/Today.tsx";
 import { Card, Icon, type IconName } from "./components/ui.tsx";
+import mark from "../favicon.svg";
 
 type Phase = "loading" | "empty" | "locked" | "ready" | "error";
 type View = { kind: "record"; ledger: Ledger } | { kind: "day"; date: string; day: Day; missing: boolean };
@@ -35,18 +36,26 @@ function Lock({ keyinfo, onUnlock }: { keyinfo: KeyInfo; onUnlock: (key: CryptoK
     else setStatus("That link or key doesn't open the current dashboard.");
   }
   return (
-    <form onSubmit={(ev) => void submit(ev)} className="mx-auto mt-10 flex max-w-md flex-col gap-3 rounded-2xl border border-line bg-surface p-5">
-      <h2 className="text-lg font-bold">Dashboard locked</h2>
-      <p className="text-sm text-muted">
-        Open your unlock link once on this device, or paste it here. The data is encrypted and decrypted in this
-        browser; the key never leaves it.
-      </p>
-      <input type="password" autoComplete="off" required aria-label="Unlock link or key" placeholder="Paste your unlock link"
-        value={value} onChange={(e) => setValue(e.target.value)}
-        className="rounded-xl border border-line bg-bg px-3 py-3 text-base text-ink" />
-      <button type="submit" className="min-h-12 rounded-xl bg-accent font-bold text-on-accent">Unlock</button>
-      <p role="status" className="min-h-5 text-sm text-bad">{status}</p>
-    </form>
+    <div className="mx-auto mt-6 grid max-w-5xl items-center gap-10 lg:mt-16 lg:grid-cols-[1fr_22rem]">
+      <div>
+        <img src={mark} alt="" className="mb-6 h-28 w-28 drop-shadow-[0_0_36px_rgba(126,164,255,0.45)] lg:h-36 lg:w-36" />
+        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-accent">Private · encrypted in your browser</p>
+        <h2 className="mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight lg:text-6xl">Ston<span className="text-accent">ks</span>: a daily momentum scan.</h2>
+        <p className="mt-5 max-w-xl text-lg text-muted">Every morning an agent scans the S&amp;P 500 and 400 for breakouts from tight ranges and pullbacks to rising averages, and publishes the candidates with stops, entries and targets.</p>
+      </div>
+      <form onSubmit={(ev) => void submit(ev)} className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5">
+        <h2 className="text-lg font-bold">Dashboard locked</h2>
+        <p className="text-sm text-muted">
+          Open your unlock link once on this device, or paste it here. The data is encrypted and decrypted in this
+          browser; the key never leaves it.
+        </p>
+        <input type="password" autoComplete="off" required aria-label="Unlock link or key" placeholder="Paste your unlock link"
+          value={value} onChange={(e) => setValue(e.target.value)}
+          className="rounded-xl border border-line bg-bg px-3 py-3 text-base text-ink" />
+        <button type="submit" className="min-h-12 rounded-xl bg-accent font-bold text-on-accent">Unlock</button>
+        <p role="status" className="min-h-5 text-sm text-bad">{status}</p>
+      </form>
+    </div>
   );
 }
 
@@ -183,8 +192,9 @@ export default function App() {
       {/* No backdrop-filter here: it would turn the header into the containing block of the
           phone tab bar (position: fixed) that renders inside it. */}
       <header className="sticky top-0 z-20 -mx-4 mb-4 flex items-center gap-3 border-b border-line bg-bg px-4 py-2 lg:-mx-6 lg:mb-6 lg:px-6">
+        <img src={mark} alt="" className="h-8 w-8 shrink-0" />
         <div className="min-w-0 lg:min-w-44">
-          <h1 className="text-base font-bold leading-tight">Stonks</h1>
+          <h1 className="text-base font-extrabold leading-tight">Ston<span className="text-accent">ks</span></h1>
           {subtitle && <p className="overflow-hidden text-ellipsis whitespace-nowrap text-xs text-muted">{subtitle}</p>}
         </div>
         {phase === "ready" && index && <TabBar index={index} active={active} date={dayDate} />}
