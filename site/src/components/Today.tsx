@@ -391,7 +391,7 @@ export default function Today({ day }: { day: Day }) {
           <div className="space-y-3">{picks.map((c) => <PickCard key={c.ticker} c={c} axis={axis} />)}</div>
         ) : (
           <Card className="text-muted">
-            No new position today. That's the default: nothing beat what the book already holds.
+            No new position this session. That's the default: nothing beat what the book already holds.
           </Card>
         )}
       </div>

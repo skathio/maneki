@@ -2,7 +2,7 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
 import {
-  convictionDots, earningsNote, fmtNum, fmtPct, fmtPrice, fmtR, isNum, regimeInfo, routeFromHash, safeUrl,
+  archiveDays, convictionDots, earningsNote, fmtNum, fmtPct, fmtPrice, fmtR, isNum, regimeInfo, routeFromHash, safeUrl,
   setupLabel, signClass, statusLabel, tradingViewUrl,
   axisPos, fmtScale, ladderAxis, scaleTone,
 } from "../site/src/lib/format.ts";
@@ -115,4 +115,12 @@ test("v2 helpers: next report, months, flags", async () => {
   assert.equal(flagInfo("near_stop").tone, "bad");
   assert.equal(flagInfo("unknown").text, "unknown");
   assert.equal(actionTone("exit"), "bad");
+});
+
+test("archiveDays lists past sessions only, newest first, the same set on every page", () => {
+  const days = ["2026-11-06", "2026-11-09", "2026-11-10"];
+  // The latest session has its own Latest tab, so the archive never repeats it or calls it "today".
+  assert.deepEqual(archiveDays(days, "2026-11-10"), ["2026-11-09", "2026-11-06"]);
+  assert.deepEqual(archiveDays(["2026-11-10"], "2026-11-10"), []);
+  assert.deepEqual(archiveDays([], "2026-11-10"), []);
 });
