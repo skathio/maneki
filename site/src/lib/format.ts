@@ -113,6 +113,11 @@ export function routeFromHash(hash: unknown): Route {
   return { view: "day", date: null };
 }
 
+/** Past sessions for the archive picker, newest first. The latest session has its own tab. */
+export function archiveDays(days: readonly string[], latest: string): string[] {
+  return days.filter((d) => d !== latest).reverse();
+}
+
 /** Percent change from `from` to `to`, or null. */
 export function pctFrom(from: unknown, to: unknown): number | null {
   return isNum(from) && isNum(to) && from !== 0 ? (100 * (to - from)) / from : null;
