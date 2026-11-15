@@ -199,7 +199,7 @@ The dashboard (`site/`) is the one thing here that renders. **Every change that 
 
 ## 11. Pitfalls
 
-- **`site/data/` is ciphertext only.** `tools/build.ts` refuses plaintext. Never hand-edit it, and never point `encrypt-dashboard.ts`/`demo-dashboard.ts` at it (`demo-dashboard.ts` refuses). After a demo build, `dist/` holds demo data. Run `npm run build` again before trusting `dist/`.
+- **`site/data/` is ciphertext only.** `tools/build.ts` refuses plaintext. Never hand-edit it, and never point `encrypt-dashboard.ts` at it: it wipes its `--dst` (`demo-dashboard.ts` refuses `site/data`, its parents and any non-empty dir). After a demo build, `dist/` holds demo data. Run `npm run build` again before trusting `dist/`.
 - **Pine ↔ pipeline parity.** The `PARITY` block in `indicators/momentum-edge-chart-check.pine` mirrors constants in `pipeline/features.py`. Change one, change the other in the same PR.
 - **Payload contract.** `site/src/lib/types.ts` mirrors what `pipeline/daily.py` and `pipeline/ledger.py` write. Keep the writers, the types and the fixture in step.
 - **Old names are deliberate.** `STONKS_DASHBOARD_KEY`, `STONKS_DATA_DIR`, and the `stonks.*` localStorage keys are kept so existing environments and devices keep working. Don't "fix" them to `maneki`.

@@ -7,11 +7,13 @@
 //   node tools/demo-dashboard.ts --dst <dir>    then: node tools/build.ts --data <dir>
 //
 // Prints the throwaway key on stdout; open the served site at `#k=<key>`.
-// Refuses to write into site/data/, which holds the real published ciphertext.
+// The destination must be absent or an empty directory, because encryption
+// rewrites it from scratch: a mistyped path (".", "site") must never be wiped.
+// site/data/, the real published ciphertext, is refused even when empty.
 // =============================================================================
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readdir, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateKeyText } from "../site/src/lib/crypto.ts";
 import { days, index, ledger } from "../tests/fixtures/demo-dashboard.ts";
@@ -19,9 +21,40 @@ import { encryptDashboard } from "./encrypt-dashboard.ts";
 
 const REAL_DATA = resolve(dirname(fileURLToPath(import.meta.url)), "..", "site", "data");
 
-export async function demoDashboard(dst: string): Promise<{ keyText: string; files: number }> {
+/** Real path of `path`, resolving symlinks through its deepest existing ancestor. */
+async function realish(path: string): Promise<string> {
+  try {
+    return await realpath(path);
+  } catch {
+    const parent = dirname(path);
+    return parent === path ? path : join(await realish(parent), basename(path));
+  }
+}
+
+const within = (child: string, parent: string): boolean => {
+  const rel = relative(parent, child);
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
+};
+
+async function assertSafeTarget(target: string, protectedDir: string): Promise<void> {
+  const real = await realish(target);
+  const guarded = await realish(protectedDir);
+  if (within(real, guarded) || within(guarded, real)) {
+    throw new Error(`refusing ${target}: it is or contains the published payload in ${protectedDir}`);
+  }
+  let entries: string[];
+  try {
+    entries = await readdir(real);
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw new Error(`refusing ${target}: not a directory`);
+  }
+  if (entries.length) throw new Error(`refusing ${target}: it is not empty and would be wiped`);
+}
+
+export async function demoDashboard(dst: string, protectedDir: string = REAL_DATA): Promise<{ keyText: string; files: number }> {
   const target = resolve(dst);
-  if (target === REAL_DATA || target.startsWith(`${REAL_DATA}/`)) throw new Error(`refusing to overwrite the published payload in ${REAL_DATA}`);
+  await assertSafeTarget(target, protectedDir);
   const src = await mkdtemp(join(tmpdir(), "maneki-demo-"));
   try {
     const plain: Record<string, unknown> = { "index.json": index, "ledger.json": ledger };

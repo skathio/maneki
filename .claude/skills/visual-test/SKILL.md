@@ -12,7 +12,7 @@ this machine. Use the synthetic fixture (`tests/fixtures/demo-dashboard.ts`), wh
 ## 1. Build with synthetic data
 
 ```bash
-OUT="$(mktemp -d)"                                    # anywhere except site/data (the tool refuses it)
+OUT="$(mktemp -d)" && [ -n "$OUT" ] || exit 1          # dst must be absent or empty; site/data is refused
 KEY="$(node tools/demo-dashboard.ts --dst "$OUT/data")" # prints the throwaway key on stdout
 node tools/build.ts --data "$OUT/data"                # same build as CI, with the demo payload in dist/data
 echo "$KEY"
