@@ -116,11 +116,13 @@ scripts/                          Python training / backtest harness (gitignored
 results/                          Backtest & training output (gitignored — local only).
 pipeline/                         Daily agent data pipeline (stdlib Python): history, features, enrich, publish, ledger.
 site/                             Dashboard: React + TypeScript + Tailwind (Vite) in site/src; site/data/ = ciphertext only. Pages via hashira.
-tools/                            build.ts (plaintext guard + Vite build) and encrypt-dashboard.ts (TypeScript, run by Node directly).
-tests/                            Python (test_*.py) and Node (*.test.ts) tests.
+tools/                            build.ts (plaintext guard + Vite build), encrypt-dashboard.ts, new-dashboard-key.ts,
+                                  demo-dashboard.ts (synthetic payload for visual testing). TypeScript run by Node directly.
+tests/                            Python (test_*.py) and Node (*.test.ts) tests; fixtures/demo-dashboard.ts = synthetic payload.
 agent/ROUTINE.md                  How the daily cloud routine is wired (prompt, environment, flow).
 spike/                            Feasibility spikes (kept as a record).
-.github/workflows/deploy.yml      hashira static-webapp CI + Pages deploy.
+.github/workflows/                pr.yml (PR checks), deploy.yml (main → Pages), homepage.yml (org-homepage ping).
+.claude/                          agents/pine-reviewer, commands/ (Pine workflows), skills/ (pine-v6-patterns, visual-test).
 CLAUDE.md                         This file.
 README.md                         Public-facing repo overview.
 .gitignore                        Keeps notes/, data/, scripts/, results/ private.
@@ -153,8 +155,54 @@ For any non-trivial work, use the slash commands rather than improvising:
 - **`/new-script <description>`** — full pipeline for a new indicator or strategy. Edge gate → research note → 5-stage protocol → implementation → `pine-reviewer` audit → note backfill. Refuses to proceed past the edge gate if the hypothesis is weak.
 - **`/analyze-script <script> [focus]`** — diagnoses an existing script across technical, edge, regime, filter, risk, and overfit dimensions. Delegates the technical layer to `pine-reviewer`, adds financial analysis, produces a prioritized improvement backlog (with ready `/update-script` invocations) and an anti-churn list. Writes `notes/<slug>-analysis-<date>.md`.
 - **`/update-script <script> <change>`** — classifies the change (cosmetic / structural / signal-logic), scales reasoning depth accordingly, runs `pine-reviewer` on the diff, and appends a decision-log entry to the script's note.
+- **`/retire-script <script>`** — archives the notes, deletes the script and companion, purges every repo reference.
 
 Supporting primitives, invoked automatically by the commands above (and available standalone):
 
 - **`pine-reviewer` subagent** — strict, read-only audit of a Pine file: repainting, look-ahead, ATR normalization, naming, strategy hygiene, anti-patterns, note-vs-code drift. Returns severity-graded findings.
 - **`pine-v6-patterns` skill** — reference patterns for the high-risk idioms (HTF data, pivots, ATR normalization, strategy declarations, confirmed-bar signals, alertconditions, `var` vs `varip`). Load this before writing those idioms; do not improvise.
+
+---
+
+## 9. Commands, CI and Deploy
+
+Node ≥ 22.18 (runs `.ts` directly by stripping types) and the system `python3` (pipeline is stdlib-only, no venv). Verified:
+
+```bash
+npm ci                                               # install (lockfile is authoritative)
+npm test                                             # tsc --noEmit, then node --test tests/**/*.test.ts with coverage → coverage/lcov.info
+npm run typecheck                                    # tsc only
+npm run build                                        # plaintext guard on site/data, Vite build → dist/
+python3 -m unittest discover -s tests -p 'test_*.py' # pipeline tests
+```
+
+There is no linter or formatter configured, and no tooling for Pine: it is checked only in TradingView and by the `pine-reviewer` subagent.
+
+- **PR checks (`pr.yml`)**: hashira's `static-webapp-ci` (build, `npm test` + coverage, scan suite) and a `pipeline` job running the Python tests. Both must be green.
+- **Deploy (`deploy.yml`)**: a push to `main` touching `site/`, `tools/`, `tests/` or the build config runs the same CI, then deploys `dist/` to GitHub Pages. The hashira ref is pinned by SHA and **must be identical in `pr.yml` and `deploy.yml`**.
+- **Daily data**: the cloud routine (`agent/ROUTINE.md`) commits `dashboard: <date>` straight to `main` via `python3 -m pipeline.cli ship`. Those commits only touch `site/data/`; don't edit them or rebase them away.
+- **Changes**: branch off `main`, open a PR, the maintainer merges. Commit subjects are short and plain (`fix: …`, `feat: …`, `chore: …`, `docs: …`, or a plain sentence).
+
+---
+
+## 10. Dashboard and Visual Testing
+
+The dashboard (`site/`) is the one thing here that renders. **Every change that affects what renders** (anything in `site/`, `vite.config.ts`, Tailwind or styles, or `site/src/lib/types.ts`/`format.ts` output) **must be visually tested before the PR is opened**:
+
+1. Encrypt the synthetic payload, build with it, serve `dist/` (exact steps: the `visual-test` skill).
+2. Screenshot at **phone (390×844) and desktop (1440×900)**, in **light and dark** (the site follows `prefers-color-scheme` and has a toggle), covering the Latest, Record and locked views the change touches.
+3. Inspect the screenshots yourself, check the console for errors, and describe or attach them in the PR.
+
+**Never screenshot or describe the real payload in a PR or any public place.** The real data is licensed and may not be redistributed. Use only the synthetic fixture (`tests/fixtures/demo-dashboard.ts`). When the payload shape changes in `types.ts`, update the fixture as well: `npm run typecheck` fails until you do.
+
+---
+
+## 11. Pitfalls
+
+- **`site/data/` is ciphertext only.** `tools/build.ts` refuses plaintext. Never hand-edit it, and never point `encrypt-dashboard.ts` at it: it wipes its `--dst` (`demo-dashboard.ts` refuses `site/data`, its parents and any non-empty dir). After a demo build, `dist/` holds demo data. Run `npm run build` again before trusting `dist/`.
+- **Pine ↔ pipeline parity.** The `PARITY` block in `indicators/momentum-edge-chart-check.pine` mirrors constants in `pipeline/features.py`. Change one, change the other in the same PR.
+- **Payload contract.** `site/src/lib/types.ts` mirrors what `pipeline/daily.py` and `pipeline/ledger.py` write. Keep the writers, the types and the fixture in step.
+- **Old names are deliberate.** `STONKS_DASHBOARD_KEY`, `STONKS_DATA_DIR`, and the `stonks.*` localStorage keys are kept so existing environments and devices keep working. Don't "fix" them to `maneki`.
+- **TypeScript is erasable-only** (`erasableSyntaxOnly`): no enums, namespaces or parameter properties, and imports use explicit `.ts` extensions.
+- **CSP** in `site/index.html` is `default-src 'none'` with self-only scripts and styles: no inline scripts or styles, no CDNs, no external fetches.
+- **Pipeline commands need secrets and the private data repo** (`MANEKI_DATA_DIR` or a sibling `maneki-data`/`stonks-data` clone). Unit tests need neither. Don't run `pipeline.cli ship` locally: it pushes to `main`.
