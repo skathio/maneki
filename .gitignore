@@ -28,3 +28,6 @@ dist/
 coverage/
 node_modules/
 __pycache__/
+
+# Playwright MCP snapshots and screenshots (visual testing)
+.playwright-mcp/
