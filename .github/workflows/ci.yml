@@ -1,0 +1,78 @@
+# The hashira static-webapp flow (templates/static-webapp/ci.yml in skathio/hashira, v3):
+# build, test with coverage, scan suite and SoMi's quality gate on every pull request,
+# plus the Python pipeline tests, which the hashira flow does not run. Pushes to main
+# and manual runs also deploy the encrypted dashboard to GitHub Pages.
+#
+# Trigger: the daily agent pushes the encrypted payload in site/data/ to main.
+# That push comes from the user's GitHub identity through the Claude GitHub
+# proxy, not GITHUB_TOKEN, so it does trigger this workflow. Pushes that touch
+# none of the paths below (notes, Pine scripts, the pipeline) do not deploy.
+#
+# The github-pages environment deliberately has no required reviewer: a
+# reviewer would turn every daily publish into a manual approval. Deploys
+# are limited to main by the environment's branch policy instead.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "tools/**"
+      - "tests/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "tsconfig.json"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+
+permissions: {}
+
+# Push and manual runs share the 'pages' group, so main's runs build and deploy one
+# at a time, in order, and a deploy is never cancelled midway (an older commit can
+# never publish over a newer one). Pull requests get a group per ref, so they never
+# queue behind a deploy.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('ci-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    # hashira v3.0.0 (peeled tag commit).
+    uses: skathio/hashira/.github/workflows/static-webapp-ci.yml@2c8d52526cbce593a445f7572b599813503160f5
+    permissions:
+      contents: read # check out the repository
+      id-token: write # upload-pages-artifact authenticates to Pages
+      pages: write # upload-pages-artifact stores the site for deploy
+      pull-requests: write # coverage comment on the pull request
+      security-events: write # upload CodeQL results when CodeQL is enabled
+    with:
+      node_version: "22"
+      output_dir: "dist"
+
+  pipeline:
+    # The pipeline is stdlib-only Python, so the runner's own python3 is enough: no
+    # setup action, no dependencies to install. Pull requests only, as before the
+    # merge into this file: deploys do not depend on it.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+      - name: Python pipeline tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+
+  deploy:
+    needs: ci
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: github-pages
+    permissions:
+      id-token: write # deploy-pages authenticates to Pages with OIDC
+      pages: write # deploy-pages publishes the site
+    steps:
+      - uses: skathio/hashira/.github/actions/pages-deploy@2c8d52526cbce593a445f7572b599813503160f5

@@ -121,7 +121,7 @@ tools/                            build.ts (plaintext guard + Vite build), encry
 tests/                            Python (test_*.py) and Node (*.test.ts) tests; fixtures/demo-dashboard.ts = synthetic payload.
 agent/ROUTINE.md                  How the daily cloud routine is wired (prompt, environment, flow).
 spike/                            Feasibility spikes (kept as a record).
-.github/workflows/                pr.yml (PR checks), deploy.yml (main → Pages), homepage.yml (org-homepage ping).
+.github/workflows/                ci.yml (PR checks; main → Pages), homepage.yml (org-homepage ping).
 .claude/                          agents/pine-reviewer, commands/ (Pine workflows), skills/ (pine-v6-patterns, visual-test).
 CLAUDE.md                         This file.
 README.md                         Public-facing repo overview.
@@ -178,8 +178,8 @@ python3 -m unittest discover -s tests -p 'test_*.py' # pipeline tests
 
 There is no linter or formatter configured, and no tooling for Pine: it is checked only in TradingView and by the `pine-reviewer` subagent.
 
-- **PR checks (`pr.yml`)**: hashira's `static-webapp-ci` (build, `npm test` + coverage, scan suite) and a `pipeline` job running the Python tests. Both must be green.
-- **Deploy (`deploy.yml`)**: a push to `main` touching `site/`, `tools/`, `tests/` or the build config runs the same CI, then deploys `dist/` to GitHub Pages. The hashira ref is pinned by SHA and **must be identical in `pr.yml` and `deploy.yml`**.
+- **PR checks (`ci.yml`)**: hashira's `static-webapp-ci` v3 (build, `npm test` + coverage, scan suite, SoMi quality gate at its default `strict` level on the changed code) and a `pipeline` job running the Python tests. All must be green.
+- **Deploy (`ci.yml`, `deploy` job)**: a push to `main` touching `site/`, `tools/`, `tests/` or the build config runs the same CI, then deploys `dist/` to GitHub Pages. The `deploy` job is skipped on pull requests. Both hashira refs (the reusable workflow and `pages-deploy`) are pinned to the same v3 commit SHA: move them together.
 - **Daily data**: the cloud routine (`agent/ROUTINE.md`) commits `dashboard: <date>` straight to `main` via `python3 -m pipeline.cli ship`. Those commits only touch `site/data/`; don't edit them or rebase them away.
 - **Changes**: branch off `main`, open a PR, the maintainer merges. Commit subjects are short and plain (`fix: …`, `feat: …`, `chore: …`, `docs: …`, or a plain sentence).
 
