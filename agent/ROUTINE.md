@@ -18,7 +18,7 @@ and stops without publishing (PROMPT.md step 1).
   ├─ pipeline enrich    Finnhub news/analyst/metrics + SEC filings for the shortlist
   ├─ agent writes analysis.json (contract v2: ≤ 2 new positions + reviews; judgment only, no prices)
   ├─ pipeline publish   validate + book caps → levels, +20% mark, position size → ledger + control arm → encrypt
-  └─ pipeline ship      push maneki-data, then maneki → deploy.yml (hashira) → GitHub Pages
+  └─ pipeline ship      push maneki-data, then maneki → ci.yml (hashira) → GitHub Pages
 ```
 
 Why the site is encrypted: Massive's market-data terms (§1, §2, §5(c)) and
