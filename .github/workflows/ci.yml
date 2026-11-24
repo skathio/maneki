@@ -39,13 +39,13 @@ concurrency:
 
 jobs:
   ci:
-    # hashira v3.0.0 (peeled tag commit).
-    uses: skathio/hashira/.github/workflows/static-webapp-ci.yml@2c8d52526cbce593a445f7572b599813503160f5
+    # hashira v3.1.0 (peeled tag commit).
+    uses: skathio/hashira/.github/workflows/static-webapp-ci.yml@1bd415e21fb070c46f07e05bfaa70e42c0531342
     permissions:
       contents: read # check out the repository
       id-token: write # upload-pages-artifact authenticates to Pages
       pages: write # upload-pages-artifact stores the site for deploy
-      pull-requests: write # coverage comment on the pull request
+      pull-requests: write # the passed job's CI summary comment on the pull request
       security-events: write # upload CodeQL results when CodeQL is enabled
     with:
       node_version: "22"
@@ -75,4 +75,4 @@ jobs:
       id-token: write # deploy-pages authenticates to Pages with OIDC
       pages: write # deploy-pages publishes the site
     steps:
-      - uses: skathio/hashira/.github/actions/pages-deploy@2c8d52526cbce593a445f7572b599813503160f5
+      - uses: skathio/hashira/.github/actions/pages-deploy@1bd415e21fb070c46f07e05bfaa70e42c0531342
